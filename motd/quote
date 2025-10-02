@@ -1,0 +1,131 @@
+#!/usr/bin/env python3
+import datetime
+import os, os.path
+import random
+import re
+import textwrap
+try:
+  COL, ROW = os.get_terminal_size()
+except OSError:
+  # May have run from remote command like `git fetch`
+  exit()
+
+# Change from home directory to this directory
+os.chdir(os.path.dirname(__file__))
+
+# MOTD sections
+WELCOME = """\
+Welcome back!
+
+Starting on a {current_day}\
+"""
+
+QUOTE = """\
+Message of the day:
+
+{quote}\
+"""
+
+# Specify which sections to display
+SECTIONS = [
+  WELCOME,
+  QUOTE,
+]
+
+# Constants for use in placeholders
+DT = datetime.datetime.now().astimezone()
+
+# Helper functions
+def part_of_day():
+  h = DT.hour
+  if 5 <= h < 9:
+    return 'early-morning'
+  elif 9 <= h < 12:
+    return 'morning'
+  elif 12 <= h < 15:
+    return 'noon'
+  elif 15 <= h < 18:
+    return 'afternoon'
+  elif 18 <= h < 21:
+    return 'evening'
+  elif 21 <= h < 24:
+    return 'night'
+  return 'late-night'
+
+def wrap(text, indent=-1):
+  """Wraps a string or a list of lines to fit
+  the terminal's width.
+
+  :param text:
+    The text to wrap. If a string is given,
+    wrapping is performed on each line.
+    Otherwise for a sequence of strings, wrapping
+    is performed on each string, assuming that
+    they are already single-line strings.
+  :param indent:
+    The number of spaces to use for indenting
+    the text. If set to -1, the leading whitespace
+    on each line is used as the indentation.
+  :returns: A string with each line wrapped.
+
+  """
+  if isinstance(text, str):
+    text = text.splitlines()
+
+  wrapper = textwrap.TextWrapper(
+    width=COL,
+    drop_whitespace=False,
+    replace_whitespace=False,
+    initial_indent=' ' * indent,
+    subsequent_indent=' ' * indent
+  )
+
+  for i, line in enumerate(text):
+    if indent == -1:
+      leading = re.match(r'\s*', line).group()
+      # wrapper.initial_indent = leading
+      wrapper.subsequent_indent = leading
+
+    text[i] = wrapper.fill(line)
+
+  return '\n'.join(text)
+
+# Placeholder functions
+def get_current_day():
+  return DT.strftime(f'%A {part_of_day()}').lower()
+
+def get_quote():
+  with open('database.txt') as f:
+    lines = f.readlines()
+
+  # To keep the same quote every day,
+  # the current date is used to decide which
+  # line to use, and also to shuffle the list
+  # after the quotes are exhausted.
+  #
+  # This adds the chance of a quote repeating
+  # consecutively, but it's a worthwhile tradeoff
+  epoch = datetime.date.fromtimestamp(0)
+  days = (DT.date() - epoch).days
+
+  seed, i = divmod(days, len(lines))
+  rand = random.Random(seed)
+
+  rand.shuffle(lines)
+  line = lines[i]
+
+  return wrap(line.rstrip(), indent=1)
+
+v = {
+  'current_day': get_current_day(),
+  'quote': get_quote(),
+}
+
+# Format and remove empty sections before printing
+for i, s in enumerate(SECTIONS):
+  SECTIONS[i] = s.format(**v)
+
+SECTIONS = map(wrap, filter(None, SECTIONS))
+
+message = '\n\n'.join(SECTIONS)
+print(message, end='\n\n')
