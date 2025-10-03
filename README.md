@@ -6,6 +6,7 @@ personal motd for termux
 usr/etc/
 ```
 
-[!Note]
-- either replace or make a backup.
-- disable unwanted module by adding .no on each module.
+> [!Note]
+> either replace or make a backup.
+>
+> disable unwanted module by adding .no on each module.
