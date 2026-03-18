@@ -17,8 +17,12 @@ BOLD='\033[1m'
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 
-uptime | grep -Po "average: \K.+"| awk -F", " '{ print $1,$2,$3 }' > $tmp/load
-IFS=" " read LOAD1 LOAD5 LOAD15 <<<$(cat $tmp/load)
+# Fix loadavg
+uptime | grep -Po "average: \K.+"| awk -F", " '{ print $1,$2,$3 }' > $tmp/loadavg
+
+# get load averages
+IFS=" " read LOAD1 LOAD5 LOAD15 <<<$(bat $tmp/loadavg)
+# get free memory
 IFS=" " read USED AVAIL TOTAL <<<$(free -htm | grep "Mem" | awk {'print $3,$7,$2'})
 
 if [[ -d /system/app/ && -d /system/priv-app ]]; then

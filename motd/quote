@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import datetime
 import os, os.path
 import random
@@ -15,7 +16,6 @@ os.chdir(os.path.dirname(__file__))
 
 # MOTD sections
 WELCOME = """\
-Welcome back!
 
 Starting on a {current_day}\
 """

@@ -8,3 +8,7 @@ do
 done
 
 python3 quote
+
+# internal storage
+updatedb --database-root /storage/emulated/0/ --output ~/.local/mlocate/storage.db
+updatedb
