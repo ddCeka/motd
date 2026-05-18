@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
 # config
-max_usage=95
+max_usage=99
 bar_width=60
 # colors
 white="\e[39m"
@@ -25,6 +25,9 @@ uptime | grep -Po "average: \K.+"| awk -F", " '{ print $1,$2,$3 }' > $tmp/loadav
 if type apt > /dev/null 2>&1; then
     total=$(apt list --installed 2> /dev/null | grep -c installed)
     updates=$(apt list --upgradable 2> /dev/null | grep -c upgradable)
+elif type pacman > /dev/null 2>&1; then
+    total=$(pacman -Qq 2> /dev/null | wc -l)
+    updates=$(pacman -Qu 2>/dev/null | wc -l)
 else
     total="N/A"
     updates="N/A"

@@ -7,8 +7,12 @@ do
     bash $i
 done
 
-python3 quote
+if [ -n "$(command -v python3)" ]; then
+    python3 quote
+fi
 
 # internal storage
-updatedb --database-root /storage/emulated/0/ --output ~/.local/mlocate/storage.db
-updatedb
+if [ -n "$(command -v locate)" ]; then
+    updatedb --database-root /storage/emulated/0/ --output ~/.local/mlocate/storage.db
+    updatedb
+fi
