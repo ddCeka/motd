@@ -52,7 +52,7 @@ def part_of_day():
     return 'night'
   return 'late-night'
 
-def wrap(text, indent=-1):
+def wrap(text, indent=-2):
   """Wraps a string or a list of lines to fit
   the terminal's width.
 
@@ -114,7 +114,7 @@ def get_quote():
   rand.shuffle(lines)
   line = lines[i]
 
-  return wrap(line.rstrip(), indent=1)
+  return wrap(line.rstrip(), indent=2)
 
 v = {
   'current_day': get_current_day(),

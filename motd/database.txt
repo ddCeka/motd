@@ -163,7 +163,7 @@ Unix...best if used before: Tue Jan 19 03:14:08 GMT 2038
 Unrecognized input, get out of the class
 Use "alias" to create command shortcuts
 Use "alias" to create your own commands. Example: alias ll="ls -la"
-Use "apt-cache search <package>" to search for a package
+Use "apt-cache search <package> | pacman -Ss <package>" to search for a package
 Use "bunzip2" to decompress bzip2 files
 Use "bzip2" to compress files with higher compression rates
 Use "cat" to display file content
@@ -180,8 +180,8 @@ Use "df -h" to check available disk space
 Use "diff" to compare files line by line
 Use "dmesg" to view kernel and system messages
 Use "docker" to manage containers
-Use "dpkg -S filename" to find which package owns a file
-Use "dpkg -l" to list all installed packages
+Use "dpkg -S <filename> | pacman -Qo <filename>" to find which package owns a file
+Use "dpkg -l | pacman -Q" to list all installed packages
 Use "echo" to print text to the terminal
 Use "export" to set environment variables
 Use "find /path -name filename" to search for files by name
@@ -234,11 +234,11 @@ Use "rsync" for fast and reliable file synchronization
 Use "sha256sum" to check the SHA256 checksum of a file
 Use "sort" to sort lines in a file
 Use "su" to switch to another user
-Use "sudo apt install <package>" to install software packages
-Use "sudo apt remove <package>" to uninstall packages
-Use "sudo apt update" to update the package list
-Use "sudo apt upgrade" to upgrade installed packages
-Use "sudo su" to become the root user
+Use "apt install <package> | pacman -S <package>" to install software packages
+Use "apt remove <package> | pacman -Rs <package>" to uninstall packages
+Use "apt update | pacman -Sy" to update the package list
+Use "apt upgrade | pacman -Syu" to upgrade installed packages
+Use "su" to become the root user
 Use "sudo" to execute commands with superuser privileges
 Use "sysctl disable <service>" to disable a service at boot
 Use "sysctl enable <service>" to enable a service at boot

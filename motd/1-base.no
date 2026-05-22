@@ -20,31 +20,50 @@ trap 'rm -rf "$tmp"' EXIT
 
 # fix loadavg
 uptime | grep -Po "average: \K.+"| awk -F", " '{ print $1,$2,$3 }' > $tmp/loadavg
+# get load averages
+IFS=" " read LOAD1 LOAD5 LOAD15 <<<$(cat $tmp/loadavg)
+# get free memory
+IFS=" " read USED AVAIL TOTAL <<<$(free -htm | grep "Mem" | awk {'print $3,$7,$2'})
 # package
-# pkg update > /dev/null 2>&1
 if type apt > /dev/null 2>&1; then
     total=$(apt list --installed 2> /dev/null | grep -c installed)
     updates=$(apt list --upgradable 2> /dev/null | grep -c upgradable)
 elif type pacman > /dev/null 2>&1; then
     total=$(pacman -Qq 2> /dev/null | wc -l)
-    updates=$(pacman -Qu 2>/dev/null | wc -l)
+    updates=$(pacman -Qu 2>/dev/null | wc -l) # -Qqu for simpler view
 else
     total="N/A"
     updates="N/A"
 fi
-# get load averages
-IFS=" " read LOAD1 LOAD5 LOAD15 <<<$(cat $tmp/loadavg)
-# get free memory
-IFS=" " read USED AVAIL TOTAL <<<$(free -htm | grep "Mem" | awk {'print $3,$7,$2'})
 
+if type apt > /dev/null 2>&1; then
 echo -e "  $cyan$date
 
 ${white}${BOLD}System Info: 
-$cyan  Uptime    : $green$(uptime -p)
-$cyan  Load      : $green$LOAD1$white (1m), $green$LOAD5$white (5m), $green$LOAD15$white (15m)
-$cyan  Memory    : $green$USED$white used, $green$AVAIL$white free, $green$TOTAL$white total
-$cyan  Package   : $green$total$white total$green installed, $green$updates$white available$green update
+$cyan Uptime         : $green$(uptime -p)
+$cyan Load           : $green$LOAD1$white (1m), $green$LOAD5$white (5m), $green$LOAD15$white (15m)
+$cyan Memory         : $green$USED$white used, $green$AVAIL$white free, $green$TOTAL$white total
+$cyan Package        : $green$total$white total installed, $green$updates$white available update
 "
+elif type pacman > /dev/null 2>&1; then
+echo -e "  $cyan$date
+
+${white}${BOLD}System Info: 
+$cyan Uptime         : $green$(uptime -p)
+$cyan Load           : $green$LOAD1$white (1m), $green$LOAD5$white (5m), $green$LOAD15$white (15m)
+$cyan Memory         : $green$USED$white used, $green$AVAIL$white free, $green$TOTAL$white total
+$cyan Package        : $green$total$white total installed, $green$updates$white available update
+"
+else
+echo -e "  $cyan$date
+
+${white}${BOLD}System Info: 
+$cyan Uptime         : $green$(uptime -p)
+$cyan Load           : $green$LOAD1$white (1m), $green$LOAD5$white (5m), $green$LOAD15$white (15m)
+$cyan Memory         : $green$USED$white used, $green$AVAIL$white free, $green$TOTAL$white total
+$cyan Package        : $green$total$white total installed, $green$updates$white available update
+"
+fi
 
 # disk usage: ignore zfs, squashfs & tmpfs
 mapfile -t dfs < <(df -H -t sdcardfs -t fuse -t fuse.rclone | tail -n+2)
