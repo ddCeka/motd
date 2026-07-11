@@ -7,11 +7,16 @@ do
     bash $i
 done
 
+cols=$(tput cols)
+line=$(printf '#%.0s' $(seq 1 $cols))
+
 if [[ -x $PREFIX/bin/python ]]; then
+    echo -e "\n\033[1;36m$line"
     python3 quote
+    echo -e "$line\033[0m\n"
 fi
 
 if [[ -x $PREFIX/bin/locate ]]; then
-    updatedb --database-root /storage/emulated/0/ --output ~/.local/mlocate/storage.db
+    updatedb --database-root /storage/emulated/0/ --output ~/.local/state/mlocate/sdcard.db
     updatedb
 fi
