@@ -8,7 +8,7 @@ do
 done
 
 cols=$(tput cols)
-line=$(printf '#%.0s' $(seq 1 $cols))
+line=$(printf '•%.0s' $(seq 1 $cols))
 
 if [[ -x $PREFIX/bin/python ]]; then
     echo -e "\n\033[1;36m$line"
