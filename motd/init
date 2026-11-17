@@ -1,22 +1,32 @@
 #!/data/data/com.termux/files/usr/bin/env bash
 
-[ -d "$PREFIX/etc/motd" ] && MOTD="$PREFIX/etc/motd"
+MOTD="${PREFIX}/etc/motd"
+[ -d "$MOTD" ] || exit 0
 
-for i in $(find $MOTD -maxdepth 1 -regex '.+/[0-9\-].+' -not -regex ".+\.no" | sort)
-do
-    bash $i
+for i in $(find "$MOTD" -maxdepth 1 -regex '.+/[0-9\-].+' -not -regex '.+\.no' | sort); do
+    bash "$i"
 done
 
-cols=$(tput cols)
-line=$(printf '•%.0s' $(seq 1 $cols))
+cols=$(tput cols 2>/dev/null || echo 50)
+printf -v line '%*s' "$cols" ''
+line=${line// /•}
 
-if [[ -x $PREFIX/bin/python ]]; then
-    echo -e "\n\033[1;36m$line"
-    python3 quote
-    echo -e "$line\033[0m\n"
+if [[ -x "$PREFIX/bin/python" && -f "$MOTD/quote" ]]; then
+    echo -e "\n\033[1;36m${line}"
+    python "$MOTD/quote"
+    echo -e "${line}\033[0m\n"
 fi
 
-if [[ -x $PREFIX/bin/locate ]]; then
-    updatedb --database-root /storage/emulated/0/ --output ~/.local/state/mlocate/sdcard.db
-    updatedb
+# Run updatedb silently in the background at most once every 24 hours
+if command -v updatedb >/dev/null 2>&1; then
+    DB_DIR="$HOME/.local/state/locate"
+    SD_DB="$DB_DIR/sdcard.db"
+    mkdir -p "$DB_DIR"
+    if [[ ! -f "$SD_DB" ]] || [[ $(find "$SD_DB" -mtime +0 2>/dev/null) ]]; then
+        (
+            updatedb --database-root /storage/emulated/0/ --output "$SD_DB"
+            updatedb
+        ) >/dev/null 2>&1 &
+        disown
+    fi
 fi
