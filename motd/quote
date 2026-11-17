@@ -95,8 +95,11 @@ def get_current_day():
   return DT.strftime(f'%A {part_of_day()}').lower()
 
 def get_quote():
-  with open('database.txt') as f:
-    lines = f.readlines()
+  with open('database.txt', encoding='utf-8') as f:
+    lines = [line.strip() for line in f if line.strip()]
+
+  if not lines:
+    return wrap('No quotes found in database.txt.', indent=2)
 
   # To keep the same quote every day,
   # the current date is used to decide which
