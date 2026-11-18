@@ -51,7 +51,7 @@ fi
 
 # Fast package count + 1-hour cache for upgradable packages
 CACHE_FILE="${TMPDIR:-/tmp}/motd_pkg_updates"
-if command -v dpkg-query >/dev/null 2>&1; then
+if command -v apt >/dev/null 2>&1; then
     total=$(dpkg-query -f '.\n' -W 2>/dev/null | wc -l)
     if [[ ! -f "$CACHE_FILE" ]] || [[ $(find "$CACHE_FILE" -mmin +60 2>/dev/null) ]]; then
         apt list --upgradable 2>/dev/null | grep -c upgradable > "$CACHE_FILE" &
