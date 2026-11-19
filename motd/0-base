@@ -70,7 +70,7 @@ if [ "$cols" -ge 54 ]; then
     echo -e "${cyan}${line}${green}
    _     _                  _
   | |   (_)_ __  _   ___  _| |
-  | |   | | '_ \| | | \ \/ / |        ${cyan}${date_str}${green}
+  | |   | | '_ \| | | \ \/ / |          ${cyan}${date_str}${green}
   | |___| | | | | |_| |>  <|_|
   |_____|_|_| |_|\__,_/_/\_(_)
 "
@@ -107,6 +107,6 @@ for df_line in "${dfs[@]}"; do
     empty=${empty// /}
 
     bar="${color}${filled}${color}${dim}${empty}${undim}"
-    echo "$df_line" | awk '{ printf("%-25s %+4sB used of %+4sB\n", $6, $3, $2); }'
+    echo "$df_line" | awk '{ printf("  %-25s                  %+4sB used of %+4sB\n", $6, $3, $2); }'
     echo -e "  ${bar}"
 done
