@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
 import datetime
-import os, os.path
+import os
 import random
 import re
 import textwrap
+
 try:
   COL, ROW = os.get_terminal_size()
 except OSError:
@@ -12,18 +13,26 @@ except OSError:
   exit()
 
 # Change from home directory to this directory
-os.chdir(os.path.dirname(__file__))
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+# Gotham Adapted (TrueColor)
+ICE      = '\033[38;2;211;235;233m'    # #D3EBE9
+MINT     = '\033[1;38;2;153;209;206m'  # #99D1CE (bold)
+STEEL    = '\033[1;38;2;89;156;171m'   # #599CAB (bold)
+LAVENDER = '\033[3;38;2;156;159;184m'  # #9C9FB8 (italic)
+SLATE    = '\033[38;2;106;125;140m'    # #6A7D8C
+NC       = '\033[0m'
 
 # MOTD sections
-WELCOME = """\
+WELCOME = f"""\
 
-Starting on a {current_day}\
+{SLATE}Starting on a {{current_day}}{NC}\
 """
 
-QUOTE = """\
-Message of the day:
+QUOTE = f"""\
+{STEEL}Message of the day:{NC}
 
-{quote}\
+{{quote}}\
 """
 
 # Specify which sections to display
@@ -52,38 +61,23 @@ def part_of_day():
     return 'night'
   return 'late-night'
 
-def wrap(text, indent=-2):
-  """Wraps a string or a list of lines to fit
-  the terminal's width.
-
-  :param text:
-    The text to wrap. If a string is given,
-    wrapping is performed on each line.
-    Otherwise for a sequence of strings, wrapping
-    is performed on each string, assuming that
-    they are already single-line strings.
-  :param indent:
-    The number of spaces to use for indenting
-    the text. If set to -1, the leading whitespace
-    on each line is used as the indentation.
-  :returns: A string with each line wrapped.
-
-  """
+def wrap(text, indent=0):
+  """Wraps a string or a list of lines to fit the terminal's width."""
   if isinstance(text, str):
     text = text.splitlines()
 
+  pad = ' ' * max(indent, 0)
   wrapper = textwrap.TextWrapper(
     width=COL,
     drop_whitespace=False,
     replace_whitespace=False,
-    initial_indent=' ' * indent,
-    subsequent_indent=' ' * indent
+    initial_indent=pad,
+    subsequent_indent=pad
   )
 
   for i, line in enumerate(text):
     if indent == -1:
       leading = re.match(r'\s*', line).group()
-      # wrapper.initial_indent = leading
       wrapper.subsequent_indent = leading
 
     text[i] = wrapper.fill(line)
@@ -92,22 +86,16 @@ def wrap(text, indent=-2):
 
 # Placeholder functions
 def get_current_day():
-  return DT.strftime(f'%A {part_of_day()}').lower()
+  day_str = DT.strftime(f'%A {part_of_day()}').lower()
+  return f'{MINT}{day_str}{SLATE}'
 
 def get_quote():
   with open('database.txt', encoding='utf-8') as f:
     lines = [line.strip() for line in f if line.strip()]
 
   if not lines:
-    return wrap('No quotes found in database.txt.', indent=2)
+    return f'{SLATE}{wrap("No quotes found in database.txt.", indent=2)}{NC}'
 
-  # To keep the same quote every day,
-  # the current date is used to decide which
-  # line to use, and also to shuffle the list
-  # after the quotes are exhausted.
-  #
-  # This adds the chance of a quote repeating
-  # consecutively, but it's a worthwhile tradeoff
   epoch = datetime.date.fromtimestamp(0)
   days = (DT.date() - epoch).days
 
@@ -115,9 +103,17 @@ def get_quote():
   rand = random.Random(seed)
 
   rand.shuffle(lines)
-  line = lines[i]
+  raw_line = lines[i].rstrip()
 
-  return wrap(line.rstrip(), indent=2)
+  # Split quote and author if separated by " - ", " – ", or " — "
+  match = re.match(r'^(.*?)(\s+[-–—]\s+.+)$', raw_line)
+  if match:
+    body, author = match.groups()
+    wrapped_body = wrap(body, indent=2)
+    wrapped_author = wrap(author.lstrip(), indent=4)
+    return f'{ICE}{wrapped_body}\n{LAVENDER}{wrapped_author}{NC}'
+
+  return f'{ICE}{wrap(raw_line, indent=2)}{NC}'
 
 v = {
   'current_day': get_current_day(),
@@ -125,10 +121,6 @@ v = {
 }
 
 # Format and remove empty sections before printing
-for i, s in enumerate(SECTIONS):
-  SECTIONS[i] = s.format(**v)
-
-SECTIONS = map(wrap, filter(None, SECTIONS))
-
-message = '\n\n'.join(SECTIONS)
+rendered = [s.format(**v) for s in SECTIONS if s]
+message = '\n\n'.join(rendered)
 print(message, end='\n\n')

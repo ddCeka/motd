@@ -11,10 +11,15 @@ cols=$(tput cols 2>/dev/null || echo 50)
 printf -v line '%*s' "$cols" ''
 line=${line// /•}
 
+# Gotham Adapted (TrueColor)
+steel="\e[38;2;89;156;171m"   # #599CAB
+ice="\e[38;2;211;235;233m"    # #D3EBE9
+NC="\e[0m"
+
 if [[ -x "$PREFIX/bin/python" && -f "$MOTD/quote" ]]; then
-    echo -e "\n\033[1;36m${line}"
+    echo -e "\n${steel}${line}${ice}"
     python "$MOTD/quote"
-    echo -e "${line}\033[0m\n"
+    echo -e "${steel}${line}${NC}\n"
 fi
 
 # Run updatedb silently in the background at most once every 24 hours
