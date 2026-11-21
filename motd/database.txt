@@ -1351,7 +1351,7 @@ Write shell script without opening an editor: `sudo su -c "echo -e \"\x23\x21/us
 Generates a TV noise alike output in the terminal: `while true; do printf "$(awk -v c="$(tput cols)" -v s="$RANDOM" 'BEGIN{srand(s);while(--c>=0){printf("\xe2\x96\\%s",sprintf("%o",150+int(10*rand())));}}')";done`
 Draw honeycomb: `yes "\\__/ " | tr "\n" " " | fold -$((($COLUMNS-3)/6*6+3)) | head -$LINES`
 Mural graffiti: `tput setaf 1;tput rev;h=$(tput lines);w=$[$(tput cols)/6];c=$(seq -ws '_____|' $[$w+1]|tr -d "0-9");for a in $(seq $[$h/2]);do echo $c;echo ${c//|___/___|};done;tput cup 0;toilet -t -f bigmono12 "?LOVE";tput cup $h`
-Draw honeycomb: `seq -ws "\\__/" 99|fold -69|tr "0-9" " "`
+Draw honeycomb: `printf "\e[38;5;214m%s\e[0m\n" "$(seq -f "%02g" -s "\__/" 99 | fold -57 | tr "0-9" " ")"`
 Draw mesh: `seq -s " \\_/" 256|tr -d "0-9"|fold -70`
 Draw line separator: `seq -s '*' 40|tr -c '*' '*' && echo`
 Draw line separator (using knoppix5 idea): `seq -s '*' 40 | tr -dc '[*\n]'`
