@@ -1,0 +1,2 @@
+#!/data/data/com.termux/files/usr/bin/bash
+seq -f "%02g" -s "\__/" 99 | fold -57 | tr "0-9" " " | awk '{c=(NR%2 ? "220" : "214"); printf "\033[38;5;%sm%s\033[0m\n", c, $0}'
